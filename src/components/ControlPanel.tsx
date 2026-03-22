@@ -44,8 +44,11 @@ export default function ControlPanel({ options, onOptionsChange, firstImageAspec
         >
           <option value="image/webp">WebP（推荐）</option>
           <option value="image/jpeg">JPEG</option>
-          <option value="image/png">PNG</option>
+          <option value="image/png">PNG（无损）</option>
         </select>
+        {options.format === 'image/png' && (
+          <span className="text-xs text-amber-400/80">⚠️ PNG 为无损格式，照片类图片体积可能更大，建议选 WebP</span>
+        )}
       </div>
 
       {/* Quality */}
@@ -70,6 +73,14 @@ export default function ControlPanel({ options, onOptionsChange, firstImageAspec
             {options.quality}%
           </span>
         </div>
+        <div className="text-[11px] text-zinc-500 leading-relaxed mt-1">
+          <span className="text-zinc-400">参考：</span>
+          <span className={`${options.quality <= 40 ? 'text-amber-400 font-medium' : ''}`}>40% 极限压缩</span> ·
+          <span className={`${options.quality > 40 && options.quality <= 65 ? 'text-amber-400 font-medium' : ''}`}>65% 网页配图</span> ·
+          <span className={`${options.quality > 65 && options.quality <= 80 ? 'text-amber-400 font-medium' : ''}`}>80% 推荐</span> ·
+          <span className={`${options.quality > 80 && options.quality <= 90 ? 'text-amber-400 font-medium' : ''}`}>90% 高质量</span> ·
+          <span className={`${options.quality > 90 ? 'text-amber-400 font-medium' : ''}`}>100% 接近原图</span>
+        </div>
       </div>
 
       {/* Resize */}
@@ -89,7 +100,7 @@ export default function ControlPanel({ options, onOptionsChange, firstImageAspec
           <button
             onClick={() => setAspectLocked(!aspectLocked)}
             className={`text-lg transition-colors ${aspectLocked ? 'text-indigo-500' : 'text-zinc-500'}`}
-            title={aspectLocked ? '锁定宽高比' : '解锁宽高比'}
+            title={aspectLocked ? '已锁定：修改宽度时高度自动按比例变化，图片不会变形' : '已解锁：宽高独立调整，可能导致图片拉伸变形'}
           >
             {aspectLocked ? '🔗' : '🔓'}
           </button>
@@ -101,6 +112,13 @@ export default function ControlPanel({ options, onOptionsChange, firstImageAspec
             onChange={(e) => handleHeightChange(e.target.value ? parseInt(e.target.value) : '')}
             className="w-20 px-2.5 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-100 text-sm outline-none focus:border-indigo-500 transition-colors"
           />
+        </div>
+        <div className="text-[11px] text-zinc-500 leading-relaxed">
+          {aspectLocked ? (
+            <>🔗 <span className="text-zinc-400">宽高比已锁定</span>，修改一侧尺寸时另一侧自动按比例调整，图片不会变形。留空则保持原始尺寸。</>
+          ) : (
+            <>🔓 <span className="text-zinc-400">宽高比已解锁</span>，宽高独立调整，可能导致图片拉伸变形。</>
+          )}
         </div>
       </div>
     </div>

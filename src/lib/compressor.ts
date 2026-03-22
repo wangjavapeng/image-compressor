@@ -71,11 +71,23 @@ export function compressImage(
     const quality = options.quality / 100;
     const format = options.format === 'image/png' ? 'image/png' : options.format;
 
+    // 如果没有调整尺寸，先比较：压缩后比原图大就保留原图
+    const hasResized = options.width !== null || options.height !== null;
+
     canvas.toBlob(
       (blob) => {
         if (blob) {
-          const url = URL.createObjectURL(blob);
-          onComplete({ blob, url, size: blob.size });
+          if (!hasResized && blob.size >= img.originalSize) {
+            // 压缩后反而更大，直接使用原始文件
+            onComplete({
+              blob: img.file,
+              url: img.originalUrl,
+              size: img.originalSize,
+            });
+          } else {
+            const url = URL.createObjectURL(blob);
+            onComplete({ blob, url, size: blob.size });
+          }
         }
       },
       format,

@@ -10,9 +10,14 @@ export default function UploadArea({ onFiles }: UploadAreaProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
+  const handleClick = useCallback(() => {
+    inputRef.current?.click();
+  }, []);
+
   const handleDrop = useCallback(
     (e: DragEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       setDragOver(false);
       if (e.dataTransfer.files.length > 0) {
         onFiles(e.dataTransfer.files);
@@ -21,10 +26,23 @@ export default function UploadArea({ onFiles }: UploadAreaProps) {
     [onFiles]
   );
 
-  const handleChange = useCallback(
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+  }, []);
+
+  const handleInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        onFiles(e.target.files);
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        onFiles(files);
         e.target.value = '';
       }
     },
@@ -53,33 +71,33 @@ export default function UploadArea({ onFiles }: UploadAreaProps) {
   }, [onFiles]);
 
   return (
-    <div
-      onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragOver(true);
-      }}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={handleDrop}
-      className={`relative border-2 border-dashed rounded-2xl p-12 md:p-16 text-center cursor-pointer transition-all duration-200 ${
-        dragOver
-          ? 'border-indigo-500 bg-indigo-500/5 scale-[1.01] shadow-[0_0_0_4px_rgba(99,102,241,0.3)]'
-          : 'border-zinc-700 bg-zinc-900/50 hover:border-indigo-500/50 hover:bg-indigo-500/[0.02]'
-      }`}
-    >
+    <>
+      <div
+        onClick={handleClick}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`relative border-2 border-dashed rounded-2xl p-12 md:p-16 text-center cursor-pointer transition-all duration-200 ${
+          dragOver
+            ? 'border-indigo-500 bg-indigo-500/5 scale-[1.01] shadow-[0_0_0_4px_rgba(99,102,241,0.3)]'
+            : 'border-zinc-700 bg-zinc-900/50 hover:border-indigo-500/50 hover:bg-indigo-500/[0.02]'
+        }`}
+      >
+        <span className="text-5xl block mb-4">📁</span>
+        <div className="text-lg font-semibold mb-2">拖拽图片到这里，或点击上传</div>
+        <div className="text-sm text-zinc-500">
+          支持 JPEG、PNG、WebP、GIF、BMP 格式 · 也可直接 Ctrl+V 粘贴
+        </div>
+      </div>
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
         multiple
-        onChange={handleChange}
-        className="hidden"
+        onChange={handleInputChange}
+        style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: 0, height: 0 }}
+        tabIndex={-1}
       />
-      <span className="text-5xl block mb-4">📁</span>
-      <div className="text-lg font-semibold mb-2">拖拽图片到这里，或点击上传</div>
-      <div className="text-sm text-zinc-500">
-        支持 JPEG、PNG、WebP、GIF、BMP 格式 · 也可直接 Ctrl+V 粘贴
-      </div>
-    </div>
+    </>
   );
 }
