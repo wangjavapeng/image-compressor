@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片压缩 - 免费在线图片压缩工具</title>
+    <meta name="description" content="免费在线图片压缩工具，支持 JPEG、WebP、PNG 格式，纯浏览器端处理，保护你的隐私。支持批量压缩、拖拽上传、实时预览。">
+    <meta name="keywords" content="图片压缩,图片瘦身,在线压缩,JPEG压缩,WebP压缩,PNG压缩">
+    <meta property="og:title" content="图片压缩 - 免费在线图片压缩工具">
+    <meta property="og:description" content="免费在线图片压缩，纯浏览器端处理，隐私安全，支持批量操作">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗜️</text></svg>">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-tertiary: #242836;
+            --bg-hover: #2d3348;
+            --border: #2d3348;
+            --border-focus: #6366f1;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+            --transition: 0.2s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 48px 24px 32px;
+            background: linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%);
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        .badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 12px;
+            background: var(--success-bg);
+            color: var(--success);
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px 48px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            position: relative;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            background: var(--bg-secondary);
+            margin-bottom: 24px;
+        }
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+        .upload-area.drag-over {
+            transform: scale(1.01);
+        }
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .upload-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        /* Controls Panel */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .control-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .control-group select,
+        .control-group input[type="number"] {
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border-color var(--transition);
+            outline: none;
+        }
+        .control-group select:focus,
+        .control-group input[type="number"]:focus {
+            border-color: var(--border-focus);
+        }
+
+        /* Slider */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .slider-container input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--accent-glow);
+            transition: transform var(--transition);
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .slider-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        /* Lock aspect ratio */
+        .size-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .size-inputs input[type="number"] {
+            width: 80px;
+            padding: 8px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+        }
+        .size-inputs input[type="number"]:focus {
+            border-color: var(--border-focus);
+        }
+        .lock-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 1.1rem;
+            transition: color var(--transition);
+        }
+        .lock-btn.locked { color: var(--accent); }
+
+        /* Batch actions */
+        .batch-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: flex-end;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Image Cards */
+        .image-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .image-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .image-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .image-card-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .image-card-name span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.8rem;
+        }
+        .image-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all var(--transition);
+            font-size: 1rem;
+        }
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .icon-btn.delete:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Comparison view */
+        .comparison {
+            position: relative;
+            overflow: hidden;
+            cursor: col-resize;
+            user-select: none;
+        }
+        .comparison img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
+            background: repeating-conic-gradient(var(--bg-tertiary) 0% 25%, var(--bg-primary) 0% 50%) 50% / 20px 20px;
+        }
+        .comparison-before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .comparison-before img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--full-width);
+            max-width: none;
+        }
+        .comparison-slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 3px;
+            height: 100%;
+            background: white;
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+        .comparison-slider::after {
+            content: '⟨ ⟩';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--bg-primary);
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .comparison-label {
+            position: absolute;
+            top: 12px;
+            padding: 4px 10px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 5;
+            backdrop-filter: blur(4px);
+        }
+        .comparison-label.before { left: 12px; }
+        .comparison-label.after { right: 12px; }
+
+        /* Stats */
+        .image-card-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-top: 1px solid var(--border);
+        }
+        .stat {
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .stat-value.success { color: var(--success); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.danger { color: var(--danger); }
+
+        /* Processing overlay */
+        .processing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-muted);
+            gap: 8px;
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Total stats bar */
+        .total-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+        .total-stats .stat { padding: 0; background: none; }
+        .total-left { display: flex; gap: 24px; align-items: center; }
+        .total-item { display: flex; flex-direction: column; gap: 2px; }
+        .total-item .label { font-size: 0.75rem; color: var(--text-muted); }
+        .total-item .value { font-weight: 700; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 24px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        .footer a:hover { color: var(--accent); }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header h1 { font-size: 1.6rem; }
+            .container { padding: 0 16px 32px; }
+            .controls { grid-template-columns: 1fr; padding: 16px; }
+            .batch-actions { flex-direction: column; }
+            .batch-actions .btn { width: 100%; justify-content: center; }
+            .image-card-stats { grid-template-columns: repeat(3, 1fr); }
+            .total-stats { flex-direction: column; gap: 12px; text-align: center; }
+            .total-left { flex-direction: column; gap: 12px; }
+            .upload-area { padding: 32px 16px; }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        .empty-state .emoji { font-size: 2.5rem; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🗜️ 图片压缩</h1>
+        <p>免费、快速、隐私安全 — 所有处理均在浏览器本地完成</p>
+        <span class="badge">🔒 你的图片不会被上传到任何服务器</span>
+    </header>
+
+    <div class="container">
+        <!-- Upload Area -->
+        <div class="upload-area" id="uploadArea">
+            <span class="upload-icon">📁</span>
+            <div class="upload-title">拖拽图片到这里，或点击上传</div>
+            <div class="upload-hint">支持 JPEG、PNG、WebP、GIF、BMP 格式 · 也可直接 Ctrl+V 粘贴</div>
+            <input type="file" id="fileInput" accept="image/*" multiple>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <label>输出格式</label>
+                <select id="outputFormat">
+                    <option value="image/webp">WebP（推荐）</option>
+                    <option value="image/jpeg">JPEG</option>
+                    <option value="image/png">PNG</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>压缩质量</label>
+                <div class="slider-container">
+                    <input type="range" id="quality" min="1" max="100" value="80">
+                    <span class="slider-value" id="qualityValue">80%</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>调整尺寸（可选）</label>
+                <div class="size-inputs">
+                    <input type="number" id="resizeWidth" placeholder="宽" min="1">
+                    <button class="lock-btn locked" id="lockAspect" title="锁定宽高比">🔗</button>
+                    <input type="number" id="resizeHeight" placeholder="高" min="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Actions -->
+        <div class="batch-actions" id="batchActions" style="display:none;">
+            <button class="btn btn-danger" id="clearAll">🗑️ 清空全部</button>
+            <button class="btn btn-primary" id="downloadAll">📦 下载全部 ZIP</button>
+        </div>
+
+        <!-- Total Stats -->
+        <div class="total-stats" id="totalStats" style="display:none;">
+            <div class="total-left">
+                <div class="total-item">
+                    <span class="label">图片数量</span>
+                    <span class="value" id="totalCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span class="label">原始总大小</span>
+                    <span class="value" id="totalOriginal">0 KB</span>
+                </div>
+                <div class="total-item">
+                    <span class="label">压缩后总大小</span>
+                    <span class="value" id="totalCompressed">0 KB</span>
+                </div>
+                <div class="total-item">
+                    <span class="label">总共节省</span>
+                    <span class="value success" id="totalSaved">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image List -->
+        <div class="image-list" id="imageList"></div>
+    </div>
+
+    <footer class="footer">
+        <p>纯浏览器端图片压缩工具 · 你的隐私我们守护</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+    (() => {
+        // State
+        const images = [];
+        let aspectLocked = true;
+        let idCounter = 0;
+
+        // DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const outputFormat = document.getElementById('outputFormat');
+        const qualitySlider = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
+        const resizeWidth = document.getElementById('resizeWidth');
+        const resizeHeight = document.getElementById('resizeHeight');
+        const lockAspectBtn = document.getElementById('lockAspect');
+        const imageList = document.getElementById('imageList');
+        const batchActions = document.getElementById('batchActions');
+        const totalStats = document.getElementById('totalStats');
+        const clearAllBtn = document.getElementById('clearAll');
+        const downloadAllBtn = document.getElementById('downloadAll');
+
+        // Utility
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function getExtension(mime) {
+            const map = { 'image/webp': '.webp', 'image/jpeg': '.jpg', 'image/png': '.png' };
+            return map[mime] || '.jpg';
+        }
+
+        function debounce(fn, ms) {
+            let t;
+            return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+        }
+
+        // Upload handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+
+        ['dragenter', 'dragover'].forEach(ev => {
+            uploadArea.addEventListener(ev, (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+        });
+        ['dragleave', 'drop'].forEach(ev => {
+            uploadArea.addEventListener(ev, (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+            });
+        });
+        uploadArea.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
+
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            const files = [];
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    files.push(item.getAsFile());
+                }
+            }
+            if (files.length) addFiles(files);
+        });
+
+        // Quality slider
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = qualitySlider.value + '%';
+            debouncedRecompressAll();
+        });
+
+        // Format change
+        outputFormat.addEventListener('change', () => debouncedRecompressAll());
+
+        // Resize inputs
+        const debouncedRecompressAll = debounce(() => recompressAll(), 300);
+
+        resizeWidth.addEventListener('input', () => {
+            if (aspectLocked && images.length > 0) {
+                const img = images[0];
+                if (img.originalWidth && resizeWidth.value) {
+                    resizeHeight.value = Math.round(parseInt(resizeWidth.value) * (img.originalHeight / img.originalWidth));
+                }
+            }
+            debouncedRecompressAll();
+        });
+        resizeHeight.addEventListener('input', () => {
+            if (aspectLocked && images.length > 0) {
+                const img = images[0];
+                if (img.originalHeight && resizeHeight.value) {
+                    resizeWidth.value = Math.round(parseInt(resizeHeight.value) * (img.originalWidth / img.originalHeight));
+                }
+            }
+            debouncedRecompressAll();
+        });
+
+        lockAspectBtn.addEventListener('click', () => {
+            aspectLocked = !aspectLocked;
+            lockAspectBtn.textContent = aspectLocked ? '🔗' : '🔓';
+            lockAspectBtn.classList.toggle('locked', aspectLocked);
+        });
+
+        // Clear all
+        clearAllBtn.addEventListener('click', () => {
+            images.length = 0;
+            imageList.innerHTML = '';
+            resizeWidth.value = '';
+            resizeHeight.value = '';
+            updateBatchUI();
+        });
+
+        // Download all as ZIP
+        downloadAllBtn.addEventListener('click', async () => {
+            if (!images.length) return;
+            downloadAllBtn.disabled = true;
+            downloadAllBtn.textContent = '⏳ 打包中...';
+            const zip = new JSZip();
+            for (const img of images) {
+                if (img.compressedBlob) {
+                    zip.file(img.name + getExtension(outputFormat.value), img.compressedBlob);
+                }
+            }
+            const content = await zip.generateAsync({ type: 'blob' });
+            saveAs(content, 'compressed-images.zip');
+            downloadAllBtn.disabled = false;
+            downloadAllBtn.textContent = '📦 下载全部 ZIP';
+        });
+
+        // Core: add files
+        function addFiles(fileList) {
+            for (const file of fileList) {
+                if (!file.type.startsWith('image/')) continue;
+                const id = idCounter++;
+                const img = {
+                    id, file,
+                    name: file.name.replace(/\.[^.]+$/, ''),
+                    originalSize: file.size,
+                    originalUrl: URL.createObjectURL(file),
+                    compressedUrl: null,
+                    compressedBlob: null,
+                    compressedSize: 0,
+                    originalWidth: 0,
+                    originalHeight: 0,
+                    processing: true,
+                };
+                images.push(img);
+
+                // Load dimensions
+                const tempImg = new Image();
+                tempImg.onload = () => {
+                    img.originalWidth = tempImg.naturalWidth;
+                    img.originalHeight = tempImg.naturalHeight;
+                    // Set resize fields from first image
+                    if (images.filter(i => i.id === img.id || !i.processing).length === 1 || (!resizeWidth.value && !resizeHeight.value)) {
+                        resizeWidth.value = tempImg.naturalWidth;
+                        resizeHeight.value = tempImg.naturalHeight;
+                    }
+                    compressImage(img);
+                };
+                tempImg.src = img.originalUrl;
+
+                renderCard(img);
+            }
+            fileInput.value = '';
+            updateBatchUI();
+        }
+
+        // Core: compress
+        function compressImage(img) {
+            img.processing = true;
+            updateCardStatus(img, true);
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const image = new Image();
+
+            image.onload = () => {
+                let w = image.naturalWidth;
+                let h = image.naturalHeight;
+                const rw = parseInt(resizeWidth.value);
+                const rh = parseInt(resizeHeight.value);
+
+                if (rw && rh) {
+                    w = rw;
+                    h = rh;
+                } else if (rw) {
+                    w = rw;
+                    h = Math.round(rw * (image.naturalHeight / image.naturalWidth));
+                } else if (rh) {
+                    h = rh;
+                    w = Math.round(rh * (image.naturalWidth / image.naturalHeight));
+                }
+
+                canvas.width = w;
+                canvas.height = h;
+
+                // White background for JPEG
+                if (outputFormat.value === 'image/jpeg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, w, h);
+                }
+
+                ctx.drawImage(image, 0, 0, w, h);
+
+                const quality = parseInt(qualitySlider.value) / 100;
+                const format = outputFormat.value === 'image/png' ? 'image/png' : outputFormat.value;
+
+                canvas.toBlob((blob) => {
+                    img.compressedBlob = blob;
+                    img.compressedSize = blob.size;
+                    img.compressedUrl = URL.createObjectURL(blob);
+                    img.processing = false;
+                    updateCardResult(img);
+                    updateBatchUI();
+                }, format, quality);
+            };
+            image.src = img.originalUrl;
+        }
+
+        function recompressAll() {
+            for (const img of images) {
+                compressImage(img);
+            }
+        }
+
+        // Render card
+        function renderCard(img) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.id = `card-${img.id}`;
+
+            card.innerHTML = `
+                <div class="image-card-header">
+                    <div class="image-card-name">
+                        🖼️ ${escapeHtml(img.name)}
+                        <span>${formatSize(img.originalSize)}</span>
+                    </div>
+                    <div class="image-card-actions">
+                        <button class="icon-btn download-btn" title="下载" data-id="${img.id}">💾</button>
+                        <button class="icon-btn delete" title="删除" data-id="${img.id}">✕</button>
+                    </div>
+                </div>
+                <div class="comparison" data-id="${img.id}">
+                    <img class="after-img" src="" alt="压缩后">
+                    <div class="comparison-before">
+                        <img class="before-img" src="" alt="原始">
+                    </div>
+                    <div class="comparison-slider"></div>
+                    <span class="comparison-label before">原始</span>
+                    <span class="comparison-label after">压缩后</span>
+                </div>
+                <div class="image-card-stats" id="stats-${img.id}">
+                    <div class="stat">
+                        <div class="stat-label">原始大小</div>
+                        <div class="stat-value">${formatSize(img.originalSize)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">压缩后</div>
+                        <div class="stat-value" id="compressed-size-${img.id}">处理中...</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">节省</div>
+                        <div class="stat-value" id="savings-${img.id}">—</div>
+                    </div>
+                </div>
+            `;
+
+            // Set original image
+            card.querySelector('.before-img').src = img.originalUrl;
+
+            // Events
+            card.querySelector('.download-btn').addEventListener('click', () => downloadSingle(img));
+            card.querySelector('.delete').addEventListener('click', () => removeImage(img.id));
+
+            // Comparison slider
+            const comparison = card.querySelector('.comparison');
+            initComparison(comparison);
+
+            imageList.appendChild(card);
+        }
+
+        function updateCardStatus(img, processing) {
+            const card = document.getElementById(`card-${img.id}`);
+            if (!card) return;
+            const compressedSizeEl = document.getElementById(`compressed-size-${img.id}`);
+            const savingsEl = document.getElementById(`savings-${img.id}`);
+            if (compressedSizeEl) compressedSizeEl.textContent = '处理中...';
+            if (savingsEl) savingsEl.textContent = '—';
+        }
+
+        function updateCardResult(img) {
+            const card = document.getElementById(`card-${img.id}`);
+            if (!card) return;
+
+            // Update after image
+            card.querySelector('.after-img').src = img.compressedUrl;
+
+            // Set full-width for before overlay
+            const afterImg = card.querySelector('.after-img');
+            const beforeContainer = card.querySelector('.comparison-before');
+            beforeContainer.style.setProperty('--full-width', afterImg.offsetWidth + 'px');
+            // Observe resize
+            const ro = new ResizeObserver(() => {
+                beforeContainer.style.setProperty('--full-width', afterImg.offsetWidth + 'px');
+            });
+            ro.observe(afterImg);
+
+            // Update stats
+            const compressedSizeEl = document.getElementById(`compressed-size-${img.id}`);
+            const savingsEl = document.getElementById(`savings-${img.id}`);
+            if (compressedSizeEl) {
+                compressedSizeEl.textContent = formatSize(img.compressedSize);
+            }
+            if (savingsEl) {
+                const savings = ((1 - img.compressedSize / img.originalSize) * 100).toFixed(1);
+                savingsEl.textContent = savings + '%';
+                savingsEl.className = 'stat-value ' + (savings > 50 ? 'success' : savings > 20 ? 'warning' : 'danger');
+            }
+
+            // Update header size info
+            const sizeSpan = card.querySelector('.image-card-name span');
+            if (sizeSpan) {
+                const savings = ((1 - img.compressedSize / img.originalSize) * 100).toFixed(1);
+                sizeSpan.textContent = `${formatSize(img.originalSize)} → ${formatSize(img.compressedSize)} (-${savings}%)`;
+            }
+        }
+
+        // Comparison slider
+        function initComparison(container) {
+            let isDragging = false;
+            const before = container.querySelector('.comparison-before');
+            const slider = container.querySelector('.comparison-slider');
+
+            function updatePosition(x) {
+                const rect = container.getBoundingClientRect();
+                let pos = (x - rect.left) / rect.width;
+                pos = Math.max(0.05, Math.min(0.95, pos));
+                before.style.width = (pos * 100) + '%';
+                slider.style.left = (pos * 100) + '%';
+            }
+
+            container.addEventListener('mousedown', (e) => { isDragging = true; updatePosition(e.clientX); });
+            container.addEventListener('touchstart', (e) => { isDragging = true; updatePosition(e.touches[0].clientX); }, { passive: true });
+
+            document.addEventListener('mousemove', (e) => { if (isDragging) updatePosition(e.clientX); });
+            document.addEventListener('touchmove', (e) => { if (isDragging) updatePosition(e.touches[0].clientX); }, { passive: true });
+
+            document.addEventListener('mouseup', () => { isDragging = false; });
+            document.addEventListener('touchend', () => { isDragging = false; });
+        }
+
+        // Download single
+        function downloadSingle(img) {
+            if (!img.compressedBlob) return;
+            const ext = getExtension(outputFormat.value);
+            saveAs(img.compressedBlob, img.name + ext);
+        }
+
+        // Remove image
+        function removeImage(id) {
+            const idx = images.findIndex(i => i.id === id);
+            if (idx === -1) return;
+            URL.revokeObjectURL(images[idx].originalUrl);
+            if (images[idx].compressedUrl) URL.revokeObjectURL(images[idx].compressedUrl);
+            images.splice(idx, 1);
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(-10px)';
+                setTimeout(() => card.remove(), 300);
+            }
+            updateBatchUI();
+        }
+
+        // Update batch UI
+        function updateBatchUI() {
+            const show = images.length > 0;
+            batchActions.style.display = show ? 'flex' : 'none';
+            totalStats.style.display = show ? 'flex' : 'none';
+
+            if (show) {
+                const totalOrig = images.reduce((s, i) => s + i.originalSize, 0);
+                const totalComp = images.reduce((s, i) => s + (i.compressedSize || 0), 0);
+                const processed = images.filter(i => i.compressedSize > 0);
+
+                document.getElementById('totalCount').textContent = images.length;
+                document.getElementById('totalOriginal').textContent = formatSize(totalOrig);
+                document.getElementById('totalCompressed').textContent = processed.length === images.length ? formatSize(totalComp) : '处理中...';
+
+                const saved = totalOrig > 0 && totalComp > 0 ? ((1 - totalComp / totalOrig) * 100).toFixed(1) + '%' : '—';
+                const savedEl = document.getElementById('totalSaved');
+                savedEl.textContent = saved;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    })();
+    </script>
+</body>
+</html>
