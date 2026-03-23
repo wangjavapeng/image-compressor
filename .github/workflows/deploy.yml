@@ -40,7 +40,7 @@ jobs:
         run: pnpm install
 
       - name: Build with OpenNext
-        run: pnpm exec @opennextjs/cloudflare build
+        run: pnpm exec opennextjs-cloudflare build
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
