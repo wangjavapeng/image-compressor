@@ -2,4 +2,7 @@ name = "image-compressor"
 compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
 
-pages_build_output_dir = ".open-next/worker"
+# OpenNext for Cloudflare automatically configures this via open-next.config.ts
+# The main entry point is .open-next/worker.js
+main = ".open-next/worker.js"
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
