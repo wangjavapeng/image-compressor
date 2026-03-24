@@ -42,13 +42,6 @@ jobs:
       - name: Build with OpenNext
         run: pnpm exec opennextjs-cloudflare build
 
-      - name: Run D1 Migrations
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: d1 execute image-compressor-db --file=migrations/0001_create_users.sql --remote
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
