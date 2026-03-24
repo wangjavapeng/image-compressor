@@ -9,6 +9,7 @@ import UploadArea from '@/components/UploadArea';
 import ControlPanel from '@/components/ControlPanel';
 import ImageCard from '@/components/ImageCard';
 import TotalStats from '@/components/TotalStats';
+import GoogleLogin from '@/components/GoogleLogin';
 
 export default function Home() {
   const {
@@ -52,7 +53,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* Header */}
-      <header className="text-center pt-12 pb-8 px-6 bg-gradient-to-b from-indigo-500/[0.07] to-transparent">
+      <header className="relative text-center pt-12 pb-8 px-6 bg-gradient-to-b from-indigo-500/[0.07] to-transparent">
+        <div className="absolute top-4 right-4">
+          <GoogleLogin />
+        </div>
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-500 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
           🗜️ 图片压缩
         </h1>

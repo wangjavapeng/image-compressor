@@ -6,3 +6,18 @@ compatibility_flags = ["nodejs_compat"]
 # The main entry point is .open-next/worker.js
 main = ".open-next/worker.js"
 assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
+# D1 Database binding
+# Replace DATABASE_ID below after running: npx wrangler d1 create image-compressor-db
+[[d1_databases]]
+binding = "DB"
+database_name = "image-compressor-db"
+database_id = "DATABASE_ID_PLACEHOLDER"
+
+# Environment variables
+# NOTE: GOOGLE_CLIENT_SECRET and JWT_SECRET should be set via Cloudflare secrets:
+#   npx wrangler secret put GOOGLE_CLIENT_SECRET
+#   npx wrangler secret put JWT_SECRET
+[vars]
+GOOGLE_CLIENT_ID = "454214560593-rdrpiv4h5m92ilm3agoqomgbpvvbt1sf.apps.googleusercontent.com"
+JWT_SECRET = "dev-only-change-in-production"
