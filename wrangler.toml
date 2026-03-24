@@ -12,12 +12,10 @@ assets = { directory = ".open-next/assets", binding = "ASSETS" }
 [[d1_databases]]
 binding = "DB"
 database_name = "image-compressor-db"
-database_id = "DATABASE_ID_PLACEHOLDER"
+database_id = "aaf9b55b-a0ee-4205-982e-daeb11211efe"
 
 # Environment variables
-# NOTE: GOOGLE_CLIENT_SECRET and JWT_SECRET should be set via Cloudflare secrets:
-#   npx wrangler secret put GOOGLE_CLIENT_SECRET
-#   npx wrangler secret put JWT_SECRET
+# GOOGLE_CLIENT_SECRET and JWT_SECRET must be set in Cloudflare Dashboard:
+#   Workers & Pages → image-compressor → Settings → Environment variables
 [vars]
 GOOGLE_CLIENT_ID = "454214560593-rdrpiv4h5m92ilm3agoqomgbpvvbt1sf.apps.googleusercontent.com"
-JWT_SECRET = "dev-only-change-in-production"
