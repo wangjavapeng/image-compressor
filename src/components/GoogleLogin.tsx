@@ -44,13 +44,19 @@ export default function GoogleLogin() {
   if (user) {
     return (
       <div className="flex items-center gap-3">
-        <img
-          src={user.avatarUrl}
-          alt={user.name}
-          className="w-8 h-8 rounded-full border-2 border-indigo-500/50"
-          referrerPolicy="no-referrer"
-        />
-        <span className="text-sm text-zinc-300 hidden sm:inline">{user.name}</span>
+        <a
+          href="/profile"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          title="个人中心"
+        >
+          <img
+            src={user.avatarUrl}
+            alt={user.name}
+            className="w-8 h-8 rounded-full border-2 border-indigo-500/50"
+            referrerPolicy="no-referrer"
+          />
+          <span className="text-sm text-zinc-300 hidden sm:inline">{user.name}</span>
+        </a>
         <button
           onClick={handleLogout}
           className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
