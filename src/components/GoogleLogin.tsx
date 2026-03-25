@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface User {
   id: number;
@@ -10,7 +11,12 @@ interface User {
   avatarUrl: string;
 }
 
-export default function GoogleLogin() {
+interface GoogleLoginProps {
+  onUserChange?: (user: User | null) => void;
+}
+
+export default function GoogleLogin({ onUserChange }: GoogleLoginProps) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -19,10 +25,11 @@ export default function GoogleLogin() {
       .then((res) => res.json())
       .then((data) => {
         if (data.user) setUser(data.user);
+        onUserChange?.(data.user || null);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [onUserChange]);
 
   const handleLogin = () => {
     window.location.href = '/api/auth/google';
@@ -31,6 +38,11 @@ export default function GoogleLogin() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout');
     setUser(null);
+    onUserChange?.(null);
+  };
+
+  const goToProfile = () => {
+    router.push('/profile');
   };
 
   if (loading) {
@@ -44,9 +56,9 @@ export default function GoogleLogin() {
   if (user) {
     return (
       <div className="flex items-center gap-3">
-        <a
-          href="/profile"
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        <button
+          onClick={goToProfile}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
           title="个人中心"
         >
           <img
@@ -56,7 +68,7 @@ export default function GoogleLogin() {
             referrerPolicy="no-referrer"
           />
           <span className="text-sm text-zinc-300 hidden sm:inline">{user.name}</span>
-        </a>
+        </button>
         <button
           onClick={handleLogout}
           className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"

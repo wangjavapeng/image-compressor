@@ -60,14 +60,14 @@ export default function Home() {
       <header className="relative text-center pt-12 pb-8 px-6 bg-gradient-to-b from-indigo-500/[0.07] to-transparent">
         <div className="absolute top-4 right-4 flex items-center gap-3">
           {user && balance !== null && (
-            <a
-              href="/profile"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 border border-zinc-700 rounded-lg text-xs text-zinc-300 hover:border-indigo-500/50 transition-all"
+            <button
+              onClick={() => window.location.href = '/profile'}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 border border-zinc-700 rounded-lg text-xs text-zinc-300 hover:border-indigo-500/50 transition-all cursor-pointer"
             >
               <span>🔋</span>
               <span className="font-semibold text-indigo-400">{balance}</span>
               <span className="text-zinc-500">积分</span>
-            </a>
+            </button>
           )}
           <GoogleLogin />
         </div>
@@ -131,6 +131,25 @@ export default function Home() {
                 关闭
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Login prompt for guests */}
+        {!user && (
+          <div className="mb-6 p-4 bg-indigo-500/5 border border-indigo-500/15 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">✨</span>
+              <div>
+                <div className="text-sm font-semibold text-indigo-300">登录获取更多权益</div>
+                <div className="text-xs text-zinc-500 mt-0.5">登录即送 30 积分，每日签到 +2 积分，畅享无限制压缩</div>
+              </div>
+            </div>
+            <a
+              href="/api/auth/google"
+              className="px-4 py-2 bg-indigo-500 text-white text-xs font-semibold rounded-lg hover:bg-indigo-400 transition-all whitespace-nowrap"
+            >
+              免费登录
+            </a>
           </div>
         )}
 
