@@ -11,25 +11,33 @@ export async function POST(request: NextRequest) {
     const count = Math.max(1, Math.min(body.count || 1, 50));
     const pointsCost = count;
 
-    // Get current points
-    const points = await env.DB.prepare(
+    // Get current points, create account if missing
+    let points = await env.DB.prepare(
       'SELECT balance FROM user_points WHERE user_id = ?'
     )
       .bind(payload.userId)
       .first<{ balance: number }>();
 
     if (!points) {
-      return NextResponse.json(
-        { success: false, message: 'no_points_account', remainingBalance: 0 },
-        { status: 400 }
-      );
+      // Backfill: create points account for existing user
+      const BACKFILL_POINTS = 30;
+      await env.DB.prepare(
+        'INSERT OR IGNORE INTO user_points (user_id, balance, total_earned) VALUES (?, ?, ?)'
+      )
+        .bind(payload.userId, BACKFILL_POINTS, BACKFILL_POINTS)
+        .run();
+      points = await env.DB.prepare(
+        'SELECT balance FROM user_points WHERE user_id = ?'
+      )
+        .bind(payload.userId)
+        .first<{ balance: number }>();
     }
 
-    if (points.balance < pointsCost) {
+    if (!points || points.balance < pointsCost) {
       return NextResponse.json({
         success: false,
         message: 'insufficient_points',
-        remainingBalance: points.balance,
+        remainingBalance: points?.balance || 0,
         required: pointsCost,
       });
     }

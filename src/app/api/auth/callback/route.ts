@@ -120,6 +120,26 @@ export async function GET(request: NextRequest) {
       )
         .bind(userId, 'register', WELCOME_POINTS, WELCOME_POINTS, '新用户注册奖励')
         .run();
+    } else {
+      // Existing user: ensure user_points row exists (backfill for pre-points users)
+      const existingPoints = await env.DB.prepare(
+        'SELECT user_id FROM user_points WHERE user_id = ?'
+      )
+        .bind(userId)
+        .first<{ user_id: number }>();
+      if (!existingPoints) {
+        const WELCOME_POINTS = 30;
+        await env.DB.prepare(
+          'INSERT INTO user_points (user_id, balance, total_earned) VALUES (?, ?, ?)'
+        )
+          .bind(userId, WELCOME_POINTS, WELCOME_POINTS)
+          .run();
+        await env.DB.prepare(
+          'INSERT INTO point_transactions (user_id, type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)'
+        )
+          .bind(userId, 'register', WELCOME_POINTS, WELCOME_POINTS, '注册奖励补发')
+          .run();
+      }
     }
 
     // Generate JWT

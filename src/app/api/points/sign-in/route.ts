@@ -32,6 +32,22 @@ export async function POST(request: NextRequest) {
 
     const SIGN_IN_POINTS = 2;
 
+    // Ensure user_points row exists
+    const pointsRow = await env.DB.prepare(
+      'SELECT balance FROM user_points WHERE user_id = ?'
+    )
+      .bind(payload.userId)
+      .first<{ balance: number }>();
+
+    if (!pointsRow) {
+      const BACKFILL_POINTS = 30;
+      await env.DB.prepare(
+        'INSERT OR IGNORE INTO user_points (user_id, balance, total_earned) VALUES (?, ?, ?)'
+      )
+        .bind(payload.userId, BACKFILL_POINTS, BACKFILL_POINTS)
+        .run();
+    }
+
     // Insert sign-in log
     await env.DB.prepare(
       'INSERT INTO sign_in_logs (user_id, sign_date) VALUES (?, ?)'
