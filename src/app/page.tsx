@@ -15,6 +15,9 @@ export default function Home() {
   const {
     images,
     options,
+    user,
+    balance,
+    pointsError,
     addFiles,
     recompressAll,
     removeImage,
@@ -22,6 +25,7 @@ export default function Home() {
     totalOriginal,
     totalCompressed,
     processedCount,
+    clearPointsError,
   } = useImageCompressor();
 
   const firstImage =
@@ -54,7 +58,17 @@ export default function Home() {
     <main className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* Header */}
       <header className="relative text-center pt-12 pb-8 px-6 bg-gradient-to-b from-indigo-500/[0.07] to-transparent">
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 flex items-center gap-3">
+          {user && balance !== null && (
+            <a
+              href="/profile"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 border border-zinc-700 rounded-lg text-xs text-zinc-300 hover:border-indigo-500/50 transition-all"
+            >
+              <span>🔋</span>
+              <span className="font-semibold text-indigo-400">{balance}</span>
+              <span className="text-zinc-500">积分</span>
+            </a>
+          )}
           <GoogleLogin />
         </div>
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-500 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
@@ -67,6 +81,59 @@ export default function Home() {
       </header>
 
       <div className="max-w-[960px] mx-auto px-6 pb-12">
+        {/* Points Error Banner */}
+        {pointsError === 'insufficient_points' && (
+          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">⚡</span>
+              <div>
+                <div className="text-sm font-semibold text-amber-400">积分不足</div>
+                <div className="text-xs text-zinc-400 mt-0.5">充值积分后可继续压缩</div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <a
+                href="/profile"
+                className="px-4 py-2 bg-indigo-500 text-white text-xs font-semibold rounded-lg hover:bg-indigo-400 transition-all"
+              >
+                去充值
+              </a>
+              <button
+                onClick={clearPointsError}
+                className="px-3 py-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        )}
+
+        {pointsError === 'free_limit' && (
+          <div className="mb-6 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">👋</span>
+              <div>
+                <div className="text-sm font-semibold text-indigo-400">免费体验次数已用完</div>
+                <div className="text-xs text-zinc-400 mt-0.5">登录后获得 30 积分，可压缩更多图片</div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <a
+                href="/api/auth/google"
+                className="px-4 py-2 bg-indigo-500 text-white text-xs font-semibold rounded-lg hover:bg-indigo-400 transition-all"
+              >
+                立即登录
+              </a>
+              <button
+                onClick={clearPointsError}
+                className="px-3 py-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Upload */}
         <UploadArea onFiles={addFiles} />
 
@@ -84,14 +151,14 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-end">
             <button
               onClick={clearAll}
-              className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-sm font-semibold hover:bg-red-500/20 transition-all"
+              className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-sm font-semibold hover:bg-red-500/20 transition-all cursor-pointer"
             >
               🗑️ 清空全部
             </button>
             <button
               onClick={handleDownloadAll}
               disabled={processedCount === 0}
-              className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_16px_rgba(99,102,241,0.3)]"
+              className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_16px_rgba(99,102,241,0.3)] cursor-pointer"
             >
               📦 下载全部 ZIP
             </button>

@@ -89,6 +89,7 @@ export async function GET(request: NextRequest) {
       .first<{ id: number }>();
 
     let userId: number;
+    let isNewUser = false;
     if (existing) {
       userId = existing.id;
       await env.DB.prepare(
@@ -103,6 +104,22 @@ export async function GET(request: NextRequest) {
         .bind(userInfo.id, userInfo.email, userInfo.name, userInfo.picture)
         .run();
       userId = result.meta.last_row_id as number;
+      isNewUser = true;
+    }
+
+    // New user: grant welcome bonus points
+    if (isNewUser) {
+      const WELCOME_POINTS = 30;
+      await env.DB.prepare(
+        'INSERT INTO user_points (user_id, balance, total_earned) VALUES (?, ?, ?)'
+      )
+        .bind(userId, WELCOME_POINTS, WELCOME_POINTS)
+        .run();
+      await env.DB.prepare(
+        'INSERT INTO point_transactions (user_id, type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)'
+      )
+        .bind(userId, 'register', WELCOME_POINTS, WELCOME_POINTS, '新用户注册奖励')
+        .run();
     }
 
     // Generate JWT
