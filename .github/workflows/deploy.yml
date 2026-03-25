@@ -42,9 +42,9 @@ jobs:
       - name: Build with OpenNext
         run: pnpm exec opennextjs-cloudflare build
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .open-next --project-name=image-compressor --branch=main
+          command: deploy
