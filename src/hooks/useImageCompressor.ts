@@ -91,7 +91,7 @@ export function useImageCompressor() {
             return;
           }
 
-          setAnonymousRemaining(data.remaining);
+          // Success: proceed with compression (remaining tracked on server)
         } catch {
           setPointsError('network_error');
           return;
