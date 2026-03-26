@@ -9,14 +9,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const count = Math.max(1, Math.min(body.count || 1, 50));
-    const pointsCost = count;
 
-    // Get current points, create account if missing
+    // Check if user is unlimited (VIP)
     let points = await env.DB.prepare(
-      'SELECT balance FROM user_points WHERE user_id = ?'
+      'SELECT balance, is_unlimited FROM user_points WHERE user_id = ?'
     )
       .bind(payload.userId)
-      .first<{ balance: number }>();
+      .first<{ balance: number; is_unlimited: number }>();
 
     if (!points) {
       // Backfill: create points account for existing user
@@ -27,11 +26,23 @@ export async function POST(request: NextRequest) {
         .bind(payload.userId, BACKFILL_POINTS, BACKFILL_POINTS)
         .run();
       points = await env.DB.prepare(
-        'SELECT balance FROM user_points WHERE user_id = ?'
+        'SELECT balance, is_unlimited FROM user_points WHERE user_id = ?'
       )
         .bind(payload.userId)
-        .first<{ balance: number }>();
+        .first<{ balance: number; is_unlimited: number }>();
     }
+
+    // VIP / unlimited users: no deduction needed
+    if (points?.is_unlimited) {
+      return NextResponse.json({
+        success: true,
+        pointsCost: 0,
+        remainingBalance: points.balance,
+        isUnlimited: true,
+      });
+    }
+
+    const pointsCost = count;
 
     if (!points || points.balance < pointsCost) {
       return NextResponse.json({

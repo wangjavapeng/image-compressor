@@ -17,6 +17,7 @@ export default function Home() {
     options,
     user,
     balance,
+    isUnlimited,
     pointsError,
     addFiles,
     recompressAll,
@@ -69,6 +70,21 @@ export default function Home() {
               <span className="text-zinc-500">积分</span>
             </button>
           )}
+          {!isUnlimited && user && (
+            <a
+              href="/pricing"
+              className="px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-400 hover:bg-amber-500/20 transition-all flex items-center gap-1"
+            >
+              <span>💎</span>
+              <span className="font-semibold">$1 无限</span>
+            </a>
+          )}
+          {isUnlimited && (
+            <span className="px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-lg text-xs text-green-400 flex items-center gap-1">
+              <span>♾️</span>
+              <span className="font-semibold">VIP</span>
+            </span>
+          )}
           <GoogleLogin />
         </div>
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-500 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
@@ -93,10 +109,10 @@ export default function Home() {
             </div>
             <div className="flex gap-2">
               <a
-                href="/profile"
+                href="/pricing"
                 className="px-4 py-2 bg-indigo-500 text-white text-xs font-semibold rounded-lg hover:bg-indigo-400 transition-all"
               >
-                去充值
+                无限套餐 $1
               </a>
               <button
                 onClick={clearPointsError}

@@ -26,8 +26,8 @@ export function useImageCompressor() {
   // User state
   const [user, setUser] = useState<User | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
+  const [isUnlimited, setIsUnlimited] = useState(false);
   const [pointsError, setPointsError] = useState<string | null>(null);
-  const [anonymousRemaining, setAnonymousRemaining] = useState<number | null>(null);
 
   // Get or create anonymous device ID from localStorage
   const getDeviceId = useCallback(() => {
@@ -50,7 +50,10 @@ export function useImageCompressor() {
           // Fetch points balance
           fetch('/api/points/balance')
             .then((r) => r.json())
-            .then((d) => setBalance(d.balance ?? 0))
+            .then((d) => {
+              setBalance(d.balance ?? 0);
+              if (d.isUnlimited) setIsUnlimited(true);
+            })
             .catch(() => {});
         } else {
           // Not logged in: fetch anonymous remaining count
@@ -252,7 +255,7 @@ export function useImageCompressor() {
     options,
     user,
     balance,
-    anonymousRemaining,
+    isUnlimited,
     pointsError,
     addFiles,
     recompressAll,

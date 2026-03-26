@@ -16,6 +16,7 @@ interface PointsInfo {
   totalEarned: number;
   totalSpent: number;
   totalRecharged: number;
+  isUnlimited: boolean;
 }
 
 interface Transaction {
@@ -33,6 +34,7 @@ const TYPE_LABELS: Record<string, string> = {
   recharge: '💰 充值',
   spend: '🗜️ 压缩消耗',
   reward: '🏆 邀请奖励',
+  purchase: '💎 购买无限套餐',
 };
 
 export default function ProfilePage() {
@@ -167,7 +169,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-4 text-center">
             <div className="text-2xl mb-1">🔋</div>
-            <div className="text-2xl font-bold text-indigo-400">{points?.balance ?? '...'}</div>
+            <div className="text-2xl font-bold text-indigo-400">{points?.isUnlimited ? '∞' : (points?.balance ?? '...')}</div>
             <div className="text-[11px] text-zinc-500 mt-1">当前余额</div>
           </div>
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-4 text-center">
@@ -181,6 +183,36 @@ export default function ProfilePage() {
             <div className="text-[11px] text-zinc-500 mt-1">累计充值</div>
           </div>
         </div>
+
+        {/* VIP / Unlimited Status */}
+        {points?.isUnlimited ? (
+          <div className="bg-gradient-to-r from-amber-500/10 to-violet-500/10 border border-amber-500/30 rounded-2xl p-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">👑</span>
+              <div>
+                <div className="font-semibold text-amber-400">无限套餐会员</div>
+                <div className="text-xs text-zinc-400 mt-0.5">无限压缩，永久有效</div>
+              </div>
+            </div>
+            <span className="text-green-400 text-sm font-semibold">已激活</span>
+          </div>
+        ) : (
+          <a
+            href="/pricing"
+            className="block bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-2xl p-5 hover:border-indigo-500/50 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">💎</span>
+                <div>
+                  <div className="font-semibold text-indigo-300">升级无限套餐</div>
+                  <div className="text-xs text-zinc-400 mt-0.5">仅需 $1.00，永久无限压缩</div>
+                </div>
+              </div>
+              <span className="text-indigo-400 text-sm font-semibold">$1 →</span>
+            </div>
+          </a>
+        )}
 
         {/* Sign In */}
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5">

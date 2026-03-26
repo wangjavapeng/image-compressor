@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const points = await env.DB.prepare(
-      'SELECT balance, total_earned, total_spent, total_recharged FROM user_points WHERE user_id = ?'
+      'SELECT balance, total_earned, total_spent, total_recharged, is_unlimited FROM user_points WHERE user_id = ?'
     )
       .bind(payload.userId)
       .first<{
@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
       totalEarned: points.total_earned,
       totalSpent: points.total_spent,
       totalRecharged: points.total_recharged,
+      isUnlimited: !!points.is_unlimited,
     });
   } catch (err) {
     console.error('Points balance error:', err);
