@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
         total_earned: number;
         total_spent: number;
         total_recharged: number;
+        is_unlimited: number;
       }>();
 
     if (!points) {
