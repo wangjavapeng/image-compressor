@@ -186,7 +186,7 @@ export function useImageCompressor() {
         }).catch(() => {});
       }
     },
-    [options, user]
+    [options, user, getDeviceId]
   );
 
   const recompressAll = useCallback(

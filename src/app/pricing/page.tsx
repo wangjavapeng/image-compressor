@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 
 interface User {
@@ -16,17 +16,22 @@ type PaymentStatus = 'idle' | 'creating' | 'pending' | 'capturing' | 'success' |
 export default function PricingPage() {
   const [user, setUser] = useState<User | null>(null);
   const [isUnlimited, setIsUnlimited] = useState(false);
-  const [status, setStatus] = useState<PaymentStatus>('idle');
-  const [approveUrl, setApproveUrl] = useState('');
-  const [paypalOrderId, setPaypalOrderId] = useState('');
+  const [status, setStatus] = useState<PaymentStatus>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('canceled') === 'true') return 'canceled';
+      if (params.get('success') === 'true' && params.get('token')) return 'capturing';
+    }
+    return 'idle';
+  });
   const [errorMsg, setErrorMsg] = useState('');
+  const capturedRef = useRef(false);
 
   const fetchUser = useCallback(async () => {
     const res = await fetch('/api/auth/me');
     const data = await res.json();
     if (data.user) {
       setUser(data.user);
-      // Check unlimited status
       const balRes = await fetch('/api/points/balance');
       if (balRes.ok) {
         const balData = await balRes.json();
@@ -37,12 +42,43 @@ export default function PricingPage() {
 
   useEffect(() => {
     fetchUser();
-    // Check URL params for payment result
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('canceled') === 'true') {
-      setStatus('canceled');
-    }
   }, [fetchUser]);
+
+  // Capture PayPal order when returning from PayPal
+  useEffect(() => {
+    if (status !== 'capturing' || capturedRef.current) return;
+    capturedRef.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (!token) {
+      setStatus('error');
+      setErrorMsg('Missing payment token');
+      return;
+    }
+
+    fetch('/api/payment/capture-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: token }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setStatus('success');
+          setIsUnlimited(true);
+          window.history.replaceState({}, '', '/pricing');
+        } else {
+          setErrorMsg(data.error || 'Payment verification failed');
+          setStatus('error');
+        }
+      })
+      .catch(() => {
+        setErrorMsg('Network error during verification');
+        setStatus('error');
+      });
+  }, [status]);
 
   const handlePurchase = async () => {
     if (!user) {
@@ -69,51 +105,13 @@ export default function PricingPage() {
         return;
       }
 
-      setPaypalOrderId(data.orderId);
-      setApproveUrl(data.approveUrl);
       setStatus('pending');
-
-      // Redirect to PayPal
       window.location.href = data.approveUrl;
     } catch {
       setErrorMsg('Network error, please try again');
       setStatus('error');
     }
   };
-
-  // When user comes back from PayPal with success=true, capture the order
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const isSuccess = params.get('success') === 'true';
-    const token = params.get('token'); // PayPal order ID
-
-    if (isSuccess && token) {
-      setStatus('capturing');
-      setErrorMsg('');
-
-      fetch('/api/payment/capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: token }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            setStatus('success');
-            setIsUnlimited(true);
-            // Clean URL
-            window.history.replaceState({}, '', '/pricing');
-          } else {
-            setErrorMsg(data.error || 'Payment verification failed');
-            setStatus('error');
-          }
-        })
-        .catch(() => {
-          setErrorMsg('Network error during verification');
-          setStatus('error');
-        });
-    }
-  }, []);
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100">
