@@ -28,7 +28,7 @@ async function getPayPalAccessToken(clientId: string, clientSecret: string): Pro
 export async function POST(request: NextRequest) {
   const auth = await authenticateRequest(request);
   if (auth instanceof NextResponse) return auth;
-  const { payload, env } = auth as { payload: { userId: number }; env: Env };
+  const { payload, env } = auth as unknown as { payload: { userId: number }; env: Env };
 
   const { clientId, clientSecret } = env;
   if (!clientId || !clientSecret) {
