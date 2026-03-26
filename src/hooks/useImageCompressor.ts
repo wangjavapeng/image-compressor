@@ -27,7 +27,18 @@ export function useImageCompressor() {
   const [user, setUser] = useState<User | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [pointsError, setPointsError] = useState<string | null>(null);
-  const freeCountRef = useRef(0);
+  const [anonymousRemaining, setAnonymousRemaining] = useState<number | null>(null);
+
+  // Get or create anonymous device ID from localStorage
+  const getDeviceId = useCallback(() => {
+    const STORAGE_KEY = 'img_comp_device_id';
+    let deviceId = localStorage.getItem(STORAGE_KEY);
+    if (!deviceId) {
+      deviceId = 'anon_' + crypto.randomUUID();
+      localStorage.setItem(STORAGE_KEY, deviceId);
+    }
+    return deviceId;
+  }, []);
 
   // Fetch user info on mount
   useEffect(() => {
@@ -41,10 +52,19 @@ export function useImageCompressor() {
             .then((r) => r.json())
             .then((d) => setBalance(d.balance ?? 0))
             .catch(() => {});
+        } else {
+          // Not logged in: fetch anonymous remaining count
+          const deviceId = getDeviceId();
+          fetch(`/api/points/anonymous-use?deviceId=${encodeURIComponent(deviceId)}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.success) setAnonymousRemaining(d.remaining);
+            })
+            .catch(() => {});
         }
       })
       .catch(() => {});
-  }, []);
+  }, [getDeviceId]);
 
   const addFiles = useCallback(
     async (fileList: FileList | File[]) => {
@@ -56,13 +76,30 @@ export function useImageCompressor() {
       const imageCount = files.length;
 
       if (!user) {
-        // Free mode: allow up to 3 images total
-        const wouldExceed = freeCountRef.current + imageCount > 3;
-        if (wouldExceed) {
-          setPointsError('free_limit');
+        // Free mode: check server-side anonymous usage
+        const deviceId = getDeviceId();
+        try {
+          const res = await fetch('/api/points/anonymous-use', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceId, count: imageCount }),
+          });
+          const data = await res.json();
+
+          if (!data.success) {
+            if (data.message === 'free_limit') {
+              setPointsError('free_limit');
+            } else {
+              setPointsError('network_error');
+            }
+            return;
+          }
+
+          setAnonymousRemaining(data.remaining);
+        } catch {
+          setPointsError('network_error');
           return;
         }
-        freeCountRef.current += imageCount;
       } else {
         // Logged in: deduct points
         try {
@@ -215,6 +252,7 @@ export function useImageCompressor() {
     options,
     user,
     balance,
+    anonymousRemaining,
     pointsError,
     addFiles,
     recompressAll,
