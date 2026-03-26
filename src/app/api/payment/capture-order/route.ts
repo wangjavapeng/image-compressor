@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
   if (auth instanceof NextResponse) return auth;
   const { payload, env } = auth as unknown as { payload: { userId: number }; env: Env };
 
-  const { clientId, clientSecret } = env;
+  const clientId = env.PAYPAL_CLIENT_ID;
+  const clientSecret = env.PAYPAL_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
     return NextResponse.json(
       { error: 'Payment system not configured' },
