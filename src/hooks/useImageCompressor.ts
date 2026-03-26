@@ -56,14 +56,7 @@ export function useImageCompressor() {
             })
             .catch(() => {});
         } else {
-          // Not logged in: fetch anonymous remaining count
-          const deviceId = getDeviceId();
-          fetch(`/api/points/anonymous-use?deviceId=${encodeURIComponent(deviceId)}`)
-            .then((r) => r.json())
-            .then((d) => {
-              if (d.success) setAnonymousRemaining(d.remaining);
-            })
-            .catch(() => {});
+          // Not logged in: device ID is tracked on server for anonymous usage
         }
       })
       .catch(() => {});
