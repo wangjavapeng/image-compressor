@@ -53,8 +53,10 @@ export default function PricingPage() {
     const token = params.get('token');
 
     if (!token) {
-      setStatus('error');
-      setErrorMsg('Missing payment token');
+      queueMicrotask(() => {
+        setStatus('error');
+        setErrorMsg('Missing payment token');
+      });
       return;
     }
 
@@ -78,6 +80,8 @@ export default function PricingPage() {
         setErrorMsg('Network error during verification');
         setStatus('error');
       });
+
+    return () => {};
   }, [status]);
 
   const handlePurchase = async () => {
