@@ -5,6 +5,10 @@ import { verify, JwtPayload } from '@/lib/jwt';
 interface Env {
   DB: D1Database;
   JWT_SECRET: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  PAYPAL_CLIENT_ID: string;
+  PAYPAL_CLIENT_SECRET: string;
 }
 
 export async function authenticateRequest(
