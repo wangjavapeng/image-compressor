@@ -107,12 +107,8 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     setLogoutLoading(true);
     await fetch('/api/auth/logout');
-    // 清空本地状态
-    setUser(null);
-    setPoints(null);
-    setTransactions([]);
-    // 跳转到首页
-    window.location.href = '/';
+    // 强制刷新页面，确保所有状态重置
+    window.location.reload();
   };
 
   if (loading) {
