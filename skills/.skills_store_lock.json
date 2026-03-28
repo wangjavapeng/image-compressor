@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "desearch-web-search": {
+      "name": "Web Search by Desearch",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=desearch-web-search",
+      "source": "skillhub",
+      "version": "1.0.1"
+    },
+    "content-collector-skill": {
+      "name": "Content Collector Skill",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=content-collector-skill",
+      "source": "skillhub",
+      "version": "0.1.0"
+    },
+    "skill-vetter": {
+      "name": "Skill Vetter",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=skill-vetter",
+      "source": "skillhub",
+      "version": "1.0.0"
+    },
+    "last30days-skill": {
+      "name": "Last30days Skill",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=last30days-skill",
+      "source": "skillhub",
+      "version": "1.0.0"
+    }
+  }
+}
