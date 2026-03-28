@@ -15,7 +15,14 @@ database_name = "image-compressor-db"
 database_id = "aaf9b55b-a0ee-4205-982e-daeb11211efe"
 
 # Environment variables
-# GOOGLE_CLIENT_SECRET and JWT_SECRET must be set in Cloudflare Dashboard:
+# All sensitive credentials must be set in Cloudflare Dashboard:
 #   Workers & Pages → image-compressor → Settings → Environment variables
-[vars]
-GOOGLE_CLIENT_ID = "454214560593-rdrpiv4h5m92ilm3agoqomgbpvvbt1sf.apps.googleusercontent.com"
+#
+# Required environment variables (set in Dashboard):
+#   - GOOGLE_CLIENT_ID
+#   - GOOGLE_CLIENT_SECRET
+#   - JWT_SECRET
+#   - PAYPAL_CLIENT_ID
+#   - PAYPAL_CLIENT_SECRET
+#
+# Note: Do NOT put sensitive values in this file - it will be committed to git!

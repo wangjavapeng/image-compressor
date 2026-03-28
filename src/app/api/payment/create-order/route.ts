@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/auth';
 
-const PAYPAL_API_BASE = 'https://api-m.paypal.com';
+// 沙盒环境
+const PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com';
 
 interface Env {
   DB: D1Database;
@@ -12,6 +13,10 @@ interface Env {
 
 async function getPayPalAccessToken(clientId: string, clientSecret: string): Promise<string> {
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  console.log('[PayPal Debug] Requesting access token...');
+  console.log('[PayPal Debug] Client ID:', clientId?.substring(0, 10) + '...');
+  console.log('[PayPal Debug] Client Secret:', clientSecret ? 'SET' : 'NOT SET');
+  
   const res = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
@@ -21,7 +26,13 @@ async function getPayPalAccessToken(clientId: string, clientSecret: string): Pro
     body: 'grant_type=client_credentials',
   });
   const data = await res.json();
-  if (!data.access_token) throw new Error('Failed to get PayPal access token');
+  console.log('[PayPal Debug] Token response status:', res.status);
+  console.log('[PayPal Debug] Token response:', JSON.stringify(data));
+  
+  if (!data.access_token) {
+    console.error('[PayPal Debug] Failed to get access token. Error:', data.error_description || data.error);
+    throw new Error('Failed to get PayPal access token: ' + (data.error_description || JSON.stringify(data)));
+  }
   return data.access_token;
 }
 
@@ -32,9 +43,14 @@ export async function POST(request: NextRequest) {
 
   const clientId = env.PAYPAL_CLIENT_ID;
   const clientSecret = env.PAYPAL_CLIENT_SECRET;
+  
+  console.log('[PayPal Debug] Env PAYPAL_CLIENT_ID:', clientId ? 'SET (length:' + clientId?.length + ')' : 'NOT set');
+  console.log('[PayPal Debug] Env PAYPAL_CLIENT_SECRET:', clientSecret ? 'SET (length:' + clientSecret?.length + ')' : 'Not set');
+  
   if (!clientId || !clientSecret) {
+    console.error('[PayPal Debug] Payment system not configured - missing credentials');
     return NextResponse.json(
-      { error: 'Payment system not configured' },
+      { error: 'Payment system not configured', debug: { hasClientId: !!clientId, hasClientSecret: !!clientSecret } },
       { status: 503 }
     );
   }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/auth';
 
-const PAYPAL_API_BASE = 'https://api-m.paypal.com';
+// 沙盒环境
+const PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com';
 
 interface Env {
   DB: D1Database;
