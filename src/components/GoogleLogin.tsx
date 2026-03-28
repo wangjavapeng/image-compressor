@@ -37,8 +37,8 @@ export default function GoogleLogin({ onUserChange }: GoogleLoginProps) {
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout');
-    setUser(null);
-    onUserChange?.(null);
+    // 强制刷新页面，确保所有组件状态重置
+    window.location.reload();
   };
 
   const goToProfile = () => {
