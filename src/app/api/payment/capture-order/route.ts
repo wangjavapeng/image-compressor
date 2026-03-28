@@ -96,9 +96,9 @@ export async function POST(request: NextRequest) {
       .bind(orderId)
       .run();
 
-    // Set user to unlimited
+    // Set user to unlimited and update total_recharged
     await env.DB.prepare(
-      'UPDATE user_points SET is_unlimited = 1, updated_at = datetime(\'now\') WHERE user_id = ?'
+      'UPDATE user_points SET is_unlimited = 1, total_recharged = total_recharged + 1, updated_at = datetime(\'now\') WHERE user_id = ?'
     )
       .bind(payload.userId)
       .run();

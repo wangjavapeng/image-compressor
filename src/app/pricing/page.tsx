@@ -55,7 +55,7 @@ export default function PricingPage() {
     if (!token) {
       queueMicrotask(() => {
         setStatus('error');
-        setErrorMsg('Missing payment token');
+        setErrorMsg('支付凭证丢失，请重试');
       });
       return;
     }
@@ -72,12 +72,19 @@ export default function PricingPage() {
           setIsUnlimited(true);
           window.history.replaceState({}, '', '/pricing');
         } else {
-          setErrorMsg(data.error || 'Payment verification failed');
+          // 友好错误提示
+          const errorMap: Record<string, string> = {
+            'Payment system not configured': '支付系统暂未配置，请联系客服',
+            'Payment capture failed': '支付验证失败，请重试',
+            'Failed to capture payment': '支付处理失败，请重试',
+            'Payment record not found': '支付记录不存在，请重试',
+          };
+          setErrorMsg(errorMap[data.error] || data.error || '支付验证失败，请重试');
           setStatus('error');
         }
       })
       .catch(() => {
-        setErrorMsg('Network error during verification');
+        setErrorMsg('网络错误，请检查网络后重试');
         setStatus('error');
       });
 
@@ -104,7 +111,12 @@ export default function PricingPage() {
       }
 
       if (!data.orderId || !data.approveUrl) {
-        setErrorMsg(data.error || 'Failed to create order');
+        // 友好错误提示
+        const errorMap: Record<string, string> = {
+          'Payment system not configured': '支付系统暂未配置，请联系客服',
+          'Unauthorized': '请先登录',
+        };
+        setErrorMsg(errorMap[data.error] || data.error || '创建订单失败，请重试');
         setStatus('error');
         return;
       }
@@ -112,7 +124,7 @@ export default function PricingPage() {
       setStatus('pending');
       window.location.href = data.approveUrl;
     } catch {
-      setErrorMsg('Network error, please try again');
+      setErrorMsg('网络错误，请检查网络后重试');
       setStatus('error');
     }
   };
